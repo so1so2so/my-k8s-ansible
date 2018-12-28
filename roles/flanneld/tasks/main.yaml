@@ -1,0 +1,40 @@
+- name: 下载flanneld二进制文件
+  copy: src={{ base_dir }}/files/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - flanneld
+  - mk-docker-opts.sh
+  tags: upgrade_flanneld
+
+- name: 创建etcd证书目录,兼容flanneld上未运行etcd的情况
+  file: name=/opt/kubernetes/ssl state=directory
+
+- name: 拉取etcd节点上的证书到控制节点,准备分发给所有flanneld节点
+  fetch: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }} mode=0755
+  with_items:
+    - ca.pem
+    - etcd.pem
+    - etcd-key.pem
+  delegate_to: "{{ groups.etcd[0] }}"
+
+- name: 分发拉取到的证书到所有flanneld节点
+  copy: src={{ ca_dir }}/{{ groups.etcd[0] }}/{{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0755
+  with_items:
+    - ca.pem
+    - etcd.pem
+    - etcd-key.pem
+
+- name: 创建flanneld的systemd unit文件
+  template: src=flanneld.service.j2 dest=/etc/systemd/system/flanneld.service
+  tags: upgrade_flanneld
+
+- name: 创建flanneld的配置文件
+  template: src=flanneld.cfg.j2 dest=/opt/kubernetes/cfg/flanneld.conf
+  tags: upgrade_flanneld
+
+- name: 开机启用flanneld服务
+  shell: systemctl enable flanneld
+  ignore_errors: true
+
+- name: 启动flanneld服务
+  shell: systemctl daemon-reload && systemctl restart flanneld
+  tags: upgrade_flanneld

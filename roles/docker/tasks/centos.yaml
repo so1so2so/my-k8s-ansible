@@ -1,0 +1,20 @@
+#centos yum安装
+- name: 安装docker基础软件包
+  yum:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+- name: 配置yum源,选择阿里云源
+  shell: "yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo && yum makecache fast "
+- name: 安装docker
+  yum:
+    name:
+      - docker-ce
+- name: 启动docker
+  shell: systemctl daemon-reload && systemctl restart docker
+  register: docker_info
+  until: docker_info.rc == 0
+  retries:  5
+  delay: 6
+  run_once: True

@@ -1,0 +1,5 @@
+# 在ansible控制节点生成证书,创建目录等基本内容
+- hosts:
+  - deploy
+  roles:
+  - deploy

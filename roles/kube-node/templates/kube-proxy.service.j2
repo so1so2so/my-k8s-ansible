@@ -1,0 +1,11 @@
+[Unit]
+Description=Kubernetes Proxy
+After=network.target
+
+[Service]
+EnvironmentFile=-{{ cfg_dir }}/kube-proxy.conf
+ExecStart={{ bin_dir }}/kube-proxy $KUBE_PROXY_OPTS
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

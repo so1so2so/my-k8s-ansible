@@ -1,0 +1,6 @@
+# to install flanneld in all node
+- hosts:
+  - kube-master
+  - kube-node
+  roles:
+  - flanneld

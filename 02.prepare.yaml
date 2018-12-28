@@ -1,0 +1,11 @@
+# 所有节点初始化,
+- hosts:
+  - kube-master
+  - kube-node
+  - deploy
+  - etcd
+  - lb
+  - flanneld
+  roles:
+  - prepare
+

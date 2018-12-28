@@ -1,0 +1,8 @@
+# 定义变量
+#https://192.168.43.50:2379,https://192.168.43.60:2379,https://192.168.43.61:2379
+ETCD: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+# 去掉最后面的一个逗号
+ETCD_ENDPOINTS: "{{ ETCD.rstrip(',') }}"
+ETCD_PREFIX: "/kube-centos/network"
+ETCD_CHECK: "{% for h in groups['etcd'] %}https://{{ h }}:2380,{% endfor %}"
+

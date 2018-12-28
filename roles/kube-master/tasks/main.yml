@@ -1,0 +1,106 @@
+- name: 下载 kube-master 二进制
+  copy: src={{ base_dir }}/files/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - kube-apiserver
+  - kube-controller-manager
+  - kube-scheduler
+  - kubectl
+  tags: upgrade_k8s
+
+- name: 创建 kubernetes 证书签名请求
+  template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
+  tags: change_cert
+
+- name: 创建 kubernetes 证书和私钥
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
+  tags: change_cert
+
+# 创建aggregator proxy相关证书
+- name: 创建 aggregator proxy证书签名请求
+  template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
+  tags: upgrade_k8s
+
+- name: 创建 aggregator-proxy证书和私钥
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
+  tags: upgrade_k8s
+
+#- name: 创建 basic-auth.csv
+#  template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
+- name: 创建bootstrap-token.csv
+  template: src=bootstrap.csv.j2 dest={{ ca_dir }}/token.csv
+
+
+- name: 创建kube-apiserver的配置文件
+  template: src=kube-apiserver.cfg.j2 dest={{ cfg_dir }}/kube-apiserver.conf
+  tags: upgrade_k8s, restart_master
+
+- name: 创建kube-apiserver的systemd unit文件
+  template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
+  tags: upgrade_k8s, restart_master
+
+- name: 创建kube-ontroller-manager的配置文件
+  template: src=kube-controller-manager.cfg.j2 dest={{ cfg_dir }}/kube-controller-manager.conf
+  tags: upgrade_k8s, restart_master
+
+- name: 创建kube-controller-manager的systemd unit文件
+  template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service
+  tags: upgrade_k8s, restart_master
+
+- name: 创建kube-scheduler的配置文件
+  template: src=kube-scheduler.cfg.j2 dest={{ cfg_dir }}/kube-scheduler.conf
+  tags: upgrade_k8s, restart_master
+
+- name: 创建kube-scheduler的systemd unit文件
+  template: src=kube-scheduler.service.j2 dest=/etc/systemd/system/kube-scheduler.service
+  tags: upgrade_k8s, restart_master
+
+- name: enable master 服务
+  shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
+  ignore_errors: true
+
+- name: 启动 master 服务
+  shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
+	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
+  tags: upgrade_k8s, restart_master
+
+- name: 以轮询的方式等待master服务启动完成
+  command: "{{ bin_dir }}/kubectl get node"
+  register: result
+  until:    result.rc == 0
+  retries:  5
+  delay: 6
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: True
+  tags: upgrade_k8s, restart_master
+
+#----------- 创建kubectl kubeconfig文件: /root/.kube/config
+# 设置集群参数，指定CA证书和apiserver地址
+- name: 设置集群参数
+  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
+        --certificate-authority={{ ca_dir }}/ca.pem \
+        --embed-certs=true \
+        --server={{ KUBE_APISERVER }}"
+# 设置客户端认证参数，指定使用admin证书和私钥
+- name: 设置客户端认证参数
+  shell: "{{ bin_dir }}/kubectl config set-credentials admin \
+        --client-certificate={{ ca_dir }}/admin.pem \
+        --embed-certs=true \
+        --client-key={{ ca_dir }}/admin-key.pem"
+# 设置上下文参数，说明使用cluster集群和用户admin
+- name: 设置上下文参数
+  shell: "{{ bin_dir }}/kubectl config set-context kubernetes \
+        --cluster=kubernetes --user=admin"
+# 选择默认上下文
+- name: 选择默认上下文
+  shell: "{{ bin_dir }}/kubectl config use-context kubernetes"
+
+
+

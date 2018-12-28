@@ -1,0 +1,5 @@
+- name: 更改 node上docker的配置
+  template: src=docker.service.j2 dest=/usr/lib/systemd/system/docker.service
+
+- name: 重启应用docker新的网络
+  shell: systemctl daemon-reload && systemctl restart docker

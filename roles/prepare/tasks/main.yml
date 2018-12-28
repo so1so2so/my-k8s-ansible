@@ -1,0 +1,43 @@
+# 系统基础软件环境
+- import_tasks: debian.yml
+  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+- import_tasks: centos.yml
+  when: ansible_distribution == "CentOS"
+
+
+- name: 写入环境变量$PATH 
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'kubeasz'
+    line: 'export PATH={{ bin_dir }}:$PATH # '
+
+- name: 添加 kubectl 命令自动补全
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'kubectl completion'
+    line: 'source <(kubectl completion bash)'
+
+# 公共系统参数设置
+- import_tasks: common.yml
+
+- name: 创建目录
+  file: name={{ item }} state=directory
+  with_items:
+  - "{{ bin_dir }}"  # hosts文件中指定的/opt/kubernetes/bin
+  - "{{ ca_dir }}"   #/opt/kubernetes/ssl
+  - "{{ cfg_dir }}"
+  - /root/.kube
+
+- name: 分发证书相关
+  synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
+  with_items:
+  - admin.pem
+  - admin-key.pem
+  - ca.pem
+  - ca-key.pem
+  - ca.csr
+  - ca-config.json
+  delegate_to: "{{ groups.deploy[0] }}"

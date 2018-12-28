@@ -1,0 +1,8 @@
+# Flanneld configuration options
+# etcd url location.  Point this to the server where etcd runs
+ETCD_ENDPOINTS="{{ ETCD_ENDPOINTS }}"
+# etcd config key.  This is the configuration key that flannel queries
+# For address range assignment
+ETCD_PREFIX="{{ ETCD_PREFIX }}"
+# Any additional options that you want to pass
+FLANNEL_OPTIONS="-etcd-cafile={{ ca_dir }}/ca.pem -etcd-certfile={{ ca_dir }}/etcd.pem  -etcd-keyfile={{  ca_dir }}/etcd-key.pem"

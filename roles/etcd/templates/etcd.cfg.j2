@@ -1,0 +1,12 @@
+ETCD_NAME={{ NODE_NAME }}
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+ETCD_LISTEN_PEER_URLS="https://{{ inventory_hostname }}:2380"
+ETCD_LISTEN_CLIENT_URLS="https://{{ inventory_hostname }}:2379"
+
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="https://{{ inventory_hostname }}:2380"
+ETCD_ADVERTISE_CLIENT_URLS="https://{{ inventory_hostname }}:2379"
+ETCD_INITIAL_CLUSTER="{{ ETCD_NODES }}"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_INITIAL_CLUSTER_STATE="new"
+ETCD_CHECK="{{ ETCD_CHECK }}"

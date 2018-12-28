@@ -1,0 +1,14 @@
+KUBE_CONTROLLER_MANAGER_OPTS="--address=127.0.0.1 \
+  --master=http://127.0.0.1:8080 \
+  --allocate-node-cidrs=true \
+  --service-cluster-ip-range={{ SERVICE_CIDR }} \
+  --cluster-cidr={{ CLUSTER_CIDR }} \
+  --cluster-name=kubernetes \
+  --cluster-signing-cert-file={{ ca_dir }}/ca.pem \
+  --cluster-signing-key-file={{ ca_dir }}/ca-key.pem \
+  --service-account-private-key-file={{ ca_dir }}/ca-key.pem \
+  --root-ca-file={{ ca_dir }}/ca.pem \
+  --horizontal-pod-autoscaler-use-rest-clients=true \
+  --leader-elect=true \
+  --experimental-cluster-signing-duration=87600h0m0s \
+  --v=2"

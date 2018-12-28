@@ -1,0 +1,61 @@
+# ansible控制节点,亦可做为k8s的某一个节点,如master或者node
+[deploy]
+192.168.43.40
+# etcd集群请提供如下NODE_NAME，注意etcd集群必须是1,3,5,7...奇数个节点
+# etcd上节点可以独立,也可以在master或者node节点上,不冲突
+[etcd]
+192.168.43.41 NODE_NAME=etcd1
+192.168.43.42 NODE_NAME=etcd2
+192.168.43.43 NODE_NAME=etcd3
+[flanneld]
+192.168.43.40
+192.168.43.41
+192.168.43.42
+192.168.43.43
+[kube-master]
+192.168.43.40
+192.168.43.41
+[kube-node]
+192.168.43.40
+192.168.43.41
+192.168.43.42
+192.168.43.43
+[lb]
+[all:vars]
+# ---------附加参数--------------------
+#默认二进制文件目录
+# 暂时高可用还没做 就选择一个master节点做 主用
+MASTER_IP="192.168.43.40"
+KUBE_APISERVER="https://{{ MASTER_IP }}:6443"
+
+# 服务网段 (Service CIDR），注意不要与内网已有网段冲突
+SERVICE_CIDR="10.10.10.1/24"
+
+# POD 网段 (Cluster CIDR），注意不要与内网已有网段冲突
+CLUSTER_CIDR="172.17.0.0/16"
+
+# 服务端口范围 (NodePort Range)
+NODE_PORT_RANGE="30000-50000"
+
+# kubernetes 服务 IP (预分配，一般是 SERVICE_CIDR 中第一个IP)
+CLUSTER_KUBERNETES_SVC_IP="10.10.10.1"
+
+# 集群 DNS 服务 IP (从 SERVICE_CIDR 中预分配)
+CLUSTER_DNS_SVC_IP="10.10.10.2"
+
+# 集群 DNS 域名
+CLUSTER_DNS_DOMAIN="cluster.local."
+
+bin_dir="/opt/kubernetes/bin"
+
+#证书目录
+ca_dir="/opt/kubernetes/ssl"
+
+# 配置文件目录
+cfg_dir="/opt/kubernetes/cfg"
+
+#部署目录,必须在此目录操作
+base_dir="/opt"
+
+#执行"head -c 16 /dev/urandom | od -An -t x | tr -d ' '" 生成 用于kubelet节点做生成
+BOOTSTRAP_TOKEN="2639e17f6174576fc7ae031b640f37a2"

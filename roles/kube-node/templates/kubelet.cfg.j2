@@ -1,0 +1,13 @@
+KUBELET_OPTS="--logtostderr=true \
+--v=4 \
+--address={{ inventory_hostname }} \
+--hostname-override={{ inventory_hostname }} \
+--kubeconfig={{ cfg_dir }}/kubelet.kubeconfig \
+--experimental-bootstrap-kubeconfig={{ cfg_dir }}/bootstrap.kubeconfig \
+--cert-dir={{ ca_dir }} \
+--feature-gates=AttachVolumeLimit=false \
+--allow-privileged=true \
+--cluster-dns=10.10.10.2 \
+--cluster-domain=cluster.local \
+--fail-swap-on=false \
+--pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google-containers/pause-amd64:3.0"

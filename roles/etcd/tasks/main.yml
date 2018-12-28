@@ -1,0 +1,71 @@
+- name: 下载etcd二进制文件
+  copy: src={{ base_dir }}/files/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - etcd
+  - etcdctl
+  tags: upgrade_etcd
+
+- name: 创建etcd证书目录
+  file: name=/opt/kubernetes/ssl state=directory
+
+# 注册变量p，根据p的stat信息判断是否已经生成过etcd证书，如果没有，下一步生成证书
+# 如果已经有etcd证书，为了保证整个安装的幂等性，跳过证书生成的步骤
+- name: 读取etcd证书stat信息
+  stat: path="/opt/kubernetes/ssl/etcd.pem"
+  register: p
+
+- name: 分发证书工具 CFSSL
+  copy: src={{ base_dir }}/files/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - cfssl
+  - cfssl-certinfo
+  - cfssljson
+
+- name: 创建etcd证书请求
+  template: src=etcd-csr.json.j2 dest=/opt/kubernetes/ssl/etcd-csr.json
+  when: p.stat.isreg is not defined
+#  delegate_to: "{{ groups.deploy[0] }}"
+
+- name: 创建 etcd证书和私钥
+  when: p.stat.isreg is not defined 
+  shell: "cd /opt/kubernetes/ssl/ && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd"
+
+
+
+- name: 创建etcd工作目录
+  file: name=/var/lib/etcd/default.etcd state=directory
+
+- name: 创建etcd的systemd unit文件
+  template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
+  tags: upgrade_etcd
+
+- name: 创建etcd的配置文件
+  template: src=etcd.cfg.j2 dest=/opt/kubernetes/cfg/etcd.conf
+  tags: upgrade_etcd
+
+- name: 开机启用etcd服务
+  shell: systemctl enable etcd
+  ignore_errors: true
+
+- name: 启动etcd服务
+  shell: systemctl daemon-reload && systemctl restart etcd
+  tags: upgrade_etcd
+
+- name : 查看当前etcd服务状态,并等待etcd启动成功
+  shell: " {{ bin_dir }}/etcdctl --ca-file={{ ca_dir }}/ca.pem --cert-file={{ ca_dir }}/etcd.pem --key-file={{ ca_dir }}/etcd-key.pem --endpoints='{{ ETCD_ENDPOINTS }} cluster-health'"
+
+#/opt/kubernetes/bin/etcdctl --ca-file=/opt/kubernetes/ssl/ca.pem --cert-file=/opt/kubernetes/ssl/etcd.pem --key-file=/opt/kubernetes/ssl/etcd-key.pem  --endpoints="https://192.168.1.21:2379,https://192.168.1.22:2379,https://192.168.1.23:2379" cluster-health
+  register: etcdinfo
+  until: etcdinfo.rc == 0
+  retries:  5
+  delay: 6
+  run_once: True
+- name: 创建flanneld网络需要的配置地址,及工作目录
+  shell: "{{ bin_dir }}/etcdctl --ca-file={{ ca_dir }}/ca.pem \
+           --cert-file={{ ca_dir }}/etcd.pem --key-file={{ ca_dir }}/etcd-key.pem \
+           --endpoints={{ ETCD_ENDPOINTS }} set {{ ETCD_PREFIX }}/config   '{{ NETWORK_CONFIG }}'"
+  ignore_errors: true
