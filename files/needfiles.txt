@@ -1,0 +1,13 @@
+ cfssl
+ cfssl-certinfo
+ cfssljson
+ etcd
+ etcdctl
+ flanneld
+ kube-apiserver
+ kube-controller-manager
+ kubectl
+ kubelet
+ kube-proxy
+ kube-scheduler
+ mk-docker-opts.sh*
