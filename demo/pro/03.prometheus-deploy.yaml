@@ -19,8 +19,8 @@ spec:
         - "/bin/prometheus"
         args:
         - "--config.file=/etc/prometheus/prometheus.yml"
-        - "--storage.tsdb.path=/prometheus"
-        - "--storage.tsdb.retention=24h"
+        - "--storage.tsdb.path=/prometheus" # TSDB 数据的存储路径
+        - "--storage.tsdb.retention=24h" # 设置了保留多长时间的数据
         - "--web.enable-admin-api"  # 控制对admin HTTP API的访问，其中包括删除时间序列等功能
         - "--web.enable-lifecycle"  # 支持热更新，直接执行localhost:9090/-/reload立即生效
         ports:
@@ -29,8 +29,8 @@ spec:
           name: http
         volumeMounts:
         - mountPath: "/prometheus"
-          subPath: prometheus
           name: data
+          subPath: prometheus
         - mountPath: "/etc/prometheus"
           name: config-volume
         resources:
@@ -44,8 +44,8 @@ spec:
         runAsUser: 0
       volumes:
       - name: data
-        persistentVolumeClaim:
+        persistentVolumeClaim: #pvc创建的
           claimName: prometheus
       - configMap:
-          name: prometheus-config
+          name: prometheus-config  # 指定配置 在上面的 prometheus-configmap.yaml
         name: config-volume
