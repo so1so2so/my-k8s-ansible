@@ -1,0 +1,6 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: prometheus-nfs-storage
+  namespace: kube-system
+provisioner: fuseim.pri/ifs
