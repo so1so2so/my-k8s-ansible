@@ -1,4 +1,0 @@
-#二进制部署的话，node-exporter部署在宿主机
-/node_exporter --collector.systemd --collector.systemd.unit-whitelist=(docker|kube-apiserver|kube-scheduler|kube-controller-manager|flannel|etcd).service
-./node_exporter --collector.systemd --collector.systemd.unit-whitelist=(docker|kubelet|kube-proxy|flannel|etcd).service
-./node_exporter --collector.systemd --collector.systemd.unit-whitelist=(docker|kubelet|kube-proxy|flannel).service
