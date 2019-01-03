@@ -8,6 +8,8 @@ data:
     global:
       scrape_interval: 15s
       scrape_timeout: 15s
+    rule_files:
+      - /etc/prometheus/rules.yml
     alerting:
       alertmanagers:
         - static_configs:
@@ -96,3 +98,15 @@ data:
       - source_labels: [__meta_kubernetes_service_name]
         action: replace
         target_label: kubernetes_name
+  rules.yml: |
+      groups:
+      - name: test-rule
+        rules:
+        - alert: NodeMemoryUsage
+          expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 > 20
+          for: 2m
+          labels:
+            team: node
+          annotations:
+            summary: "{{$labels.instance}}: High Memory usage detected"
+            description: "{{$labels.instance}}: Memory usage is above 20% (current value is: {{ $value }}"

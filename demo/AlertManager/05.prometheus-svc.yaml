@@ -11,5 +11,10 @@ spec:
   type: NodePort
   ports:
     - name: web
-      port: 9090
-      targetPort: http
+      port: 9091
+      targetPort: 9090
+      nodePort: 33000
+    - name: alter2
+      port: 9094
+      targetPort: 9093
+      nodePort: 33001

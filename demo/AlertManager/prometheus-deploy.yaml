@@ -1,0 +1,72 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: kube-ops
+  labels:
+    app: prometheus
+spec:
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      containers:
+      - image: prom/prometheus:v2.4.3
+        name: prometheus
+        command:
+        - "/bin/prometheus"
+        args:
+        - "--config.file=/etc/prometheus/prometheus.yml"
+        - "--storage.tsdb.path=/prometheus" # TSDB 数据的存储路径
+        - "--storage.tsdb.retention=24h" # 设置了保留多长时间的数据
+        - "--web.enable-admin-api"  # 控制对admin HTTP API的访问，其中包括删除时间序列等功能
+        - "--web.enable-lifecycle"  # 支持热更新，直接执行localhost:9090/-/reload立即生效
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+          name: http
+        volumeMounts:
+        - mountPath: "/prometheus"
+          name: data
+          subPath: prometheus
+        - mountPath: "/etc/prometheus"
+          name: config-volume
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 100m
+            memory: 512Mi
+      - image: prom/alertmanager:v0.15.3
+        name:  alertmanager
+        args:
+        - "--config.file=/etc/alertmanager/config.yml"
+        - "--storage.path=/alertmanager/data"
+        ports:
+        - containerPort: 9093
+          name: http
+        volumeMounts:
+        - mountPath: "/etc/alertmanager"
+          name: alertcfg
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 100m
+            memory: 256Mi
+      securityContext:
+        runAsUser: 0
+      volumes:
+      - name: data
+        persistentVolumeClaim: #pvc创建的
+          claimName: prometheus
+      - name: alertcfg
+        configMap:
+          name: alert-config
+      - configMap:
+          name: prometheus-config  # 指定配置 在上面的 prometheus-configmap.yaml
+        name: config-volume
