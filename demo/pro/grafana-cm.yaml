@@ -5,15 +5,13 @@ metadata:
   namespace: kube-ops
 data:
   grafana.ini: |
-    [server]
-    root_url = http://<你grafana的url地址>
     [smtp]
     enabled = true
-    host = smtp.163.com:25
-    user = ych_1024@163.com
-    password = <邮箱密码>
+    host = smtp.163.cn:25
+    user = k8s_mail@163.com
+    password = 125800
     skip_verify = true
-    from_address = ych_1024@163.com
+    from_address = k8s_mail@163.com
     [alerting]
     enabled = true
     execute_alerts = true

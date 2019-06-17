@@ -1,4 +1,5 @@
 KUBE_PROXY_OPTS="--logtostderr=true \
 --v=4 \
 --hostname-override={{ inventory_hostname }} \
---kubeconfig={{ cfg_dir }}/kube-proxy.kubeconfig"
+--kubeconfig={{ cfg_dir }}/kube-proxy.kubeconfig \
+--proxy-mode=ipvs  --masquerade-all=true"

@@ -9,7 +9,7 @@ data:
       scrape_interval: 15s
       scrape_timeout: 15s
     rule_files:
-      - /etc/prometheus/rules.yml
+    - /etc/prometheus/rules.yml
     alerting:
       alertmanagers:
         - static_configs:
@@ -98,6 +98,34 @@ data:
       - source_labels: [__meta_kubernetes_service_name]
         action: replace
         target_label: kubernetes_name
+    - job_name: 'kubernetes-kube-sheduler'
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.*):6443'
+        replacement: '${1}:10251'
+        target_label: __address__
+        action: replace
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: default;kubernetes;https
+    - job_name: 'kube-controller-manager'
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.*):6443'
+        replacement: '${1}:10252'
+        target_label: __address__
+        action: replace
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: default;kubernetes;https
   rules.yml: |
       groups:
       - name: test-rule
@@ -106,7 +134,15 @@ data:
           expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 > 20
           for: 2m
           labels:
-            team: node
+            filesystem: node
           annotations:
-            summary: "{{$labels.instance}}: High Memory usage detected"
-            description: "{{$labels.instance}}: Memory usage is above 20% (current value is: {{ $value }}"
+            summary: "主机 {{$labels.instance}}: 内存使用率过高"
+            description: "主机 {{$labels.instance}}: 内存使用超过 20%,现在的使用率为: {{ $value }}"
+        - alert: NodeFilesystemUsage
+          expr: (node_filesystem_size_bytes{device="tmpfs"} - node_filesystem_free_bytes{device="tmpfs"}) / node_filesystem_size_bytes{device="tmpfs"} * 100 > 5
+          for: 2m
+          labels:
+            filesystem: node
+          annotations:
+            summary: " 主机 {{$labels.instance}}: 磁盘使用率过高"
+            description: "主机 {{$labels.instance}}: 磁盘使用率超过5% 现在使用率为: {{ $value }}%"

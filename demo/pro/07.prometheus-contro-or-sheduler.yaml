@@ -1,0 +1,25 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kube-scheduler
+  namespace: kube-system
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10251"
+spec:
+  selector:
+    app: kube-scheduler
+  type: ClusterIP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10252"
+spec:
+  selector:
+    app: kube-controller-manager
+  type: ClusterIP

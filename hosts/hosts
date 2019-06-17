@@ -1,31 +1,46 @@
 # ansible控制节点,亦可做为k8s的某一个节点,如master或者node
 [deploy]
-192.168.43.40
+192.168.1.21
 # etcd集群请提供如下NODE_NAME，注意etcd集群必须是1,3,5,7...奇数个节点
 # etcd上节点可以独立,也可以在master或者node节点上,不冲突
 [etcd]
-192.168.43.41 NODE_NAME=etcd1
-192.168.43.42 NODE_NAME=etcd2
-192.168.43.43 NODE_NAME=etcd3
+192.168.1.22 NODE_NAME=etcd1
+192.168.1.23 NODE_NAME=etcd2
+192.168.1.24 NODE_NAME=etcd3
 [flanneld]
-192.168.43.40
-192.168.43.41
-192.168.43.42
-192.168.43.43
+192.168.1.21 ansibled_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.22 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.23 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.24 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.25 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.26 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.27 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.28 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.29 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
+192.168.1.30 ansible_connection=ssh ansible_ssh_user=root  ansible_ssh_pass='123456'
 [kube-master]
-192.168.43.40
-192.168.43.41
+192.168.1.22
+192.168.1.23
+192.168.1.24
 [kube-node]
-192.168.43.40
-192.168.43.41
-192.168.43.42
-192.168.43.43
+192.168.1.24
+192.168.1.25
+192.168.1.26
+192.168.1.27
+192.168.1.28
+192.168.1.29
+192.168.1.30
 [lb]
+192.168.1.22 LB_ROLE=master
+192.168.1.23 LB_ROLE=backup
+192.168.1.24 LB_ROLE=backup
+[set]
+192.168.1.22
 [all:vars]
 # ---------附加参数--------------------
 #默认二进制文件目录
 # 暂时高可用还没做 就选择一个master节点做 主用
-MASTER_IP="192.168.43.40"
+MASTER_IP="192.168.1.100"
 KUBE_APISERVER="https://{{ MASTER_IP }}:6443"
 
 # 服务网段 (Service CIDR），注意不要与内网已有网段冲突

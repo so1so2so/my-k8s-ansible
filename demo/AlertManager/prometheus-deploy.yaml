@@ -36,10 +36,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 512Mi
+            memory: 2048Mi
           limits:
             cpu: 100m
-            memory: 512Mi
+            memory: 2048Mi
       - image: prom/alertmanager:v0.15.3
         name:  alertmanager
         args:
@@ -54,10 +54,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 256Mi
+            memory: 2048Mi
           limits:
             cpu: 100m
-            memory: 256Mi
+            memory: 2048Mi
       securityContext:
         runAsUser: 0
       volumes:

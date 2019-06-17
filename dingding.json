@@ -1,0 +1,102 @@
+{
+  "alerts": [
+    {
+      "generatorURL": "http://prometheus-7dcf6644c8-ffnqf:9090/graph?g0.expr=%28node_filesystem_size_bytes%7Bdevice%3D%22tmpfs%22%7D+-+node_filesystem_free_bytes%7Bdevice%3D%22tmpfs%22%7D%29+%2F+node_filesystem_size_bytes%7Bdevice%3D%22tmpfs%22%7D+%2A+100+%3E+5&g0.tab=1",
+      "annotations": {
+        "summary": "主机 192.168.1.22: 磁盘使用率过高",
+        "description": " 主机 192.168.1.22: 磁盘使用率超过5%,现在使用率为: 9.647758208789377%"
+      },
+      "startsAt": "2019-06-04T06:24:55.407746617Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "status": "firing",
+      "labels": {
+        "app": "node-exporter",
+        "instance": "192.168.1.22",
+        "kubernetes_io_arch": "amd64",
+        "alertname": "NodeFilesystemUsage",
+        "beta_kubernetes_io_os": "linux",
+        "kubernetes_io_hostname": "192.168.1.22",
+        "beta_kubernetes_io_arch": "amd64",
+        "kubernetes_io_os": "linux",
+        "kubernetes_io_role": "node",
+        "filesystem": "node",
+        "mountpoint": "/rootfs/run",
+        "job": "kubernetes-nodes",
+        "device": "tmpfs",
+        "fstype": "tmpfs"
+      }
+    },
+    {
+      "generatorURL": "http://prometheus-7dcf6644c8-ffnqf:9090/graph?g0.expr=%28node_filesystem_size_bytes%7Bdevice%3D%22tmpfs%22%7D+-+node_filesystem_free_bytes%7Bdevice%3D%22tmpfs%22%7D%29+%2F+node_filesystem_size_bytes%7Bdevice%3D%22tmpfs%22%7D+%2A+100+%3E+5&g0.tab=1",
+      "annotations": {
+        "summary": "192.168.1.23: High Filesystem usage detected",
+        "description": "192.168.1.23: Filesystem usage is above 10% (current value is: 9.642599192018604"
+      },
+      "startsAt": "2019-06-04T06:24:55.407746617Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "status": "firing",
+      "labels": {
+        "instance": "192.168.1.23",
+        "kubernetes_io_arch": "amd64",
+        "alertname": "NodeFilesystemUsage",
+        "beta_kubernetes_io_os": "linux",
+        "kubernetes_io_hostname": "192.168.1.23",
+        "beta_kubernetes_io_arch": "amd64",
+        "kubernetes_io_os": "linux",
+        "kubernetes_io_role": "node",
+        "filesystem": "node",
+        "mountpoint": "/rootfs/run",
+        "job": "kubernetes-nodes",
+        "device": "tmpfs",
+        "fstype": "tmpfs"
+      }
+    },
+    {
+      "generatorURL": "http://prometheus-7dcf6644c8-ffnqf:9090/graph?g0.expr=%28node_filesystem_size_bytes%7Bdevice%3D%22tmpfs%22%7D+-+node_filesystem_free_bytes%7Bdevice%3D%22tmpfs%22%7D%29+%2F+node_filesystem_size_bytes%7Bdevice%3D%22tmpfs%22%7D+%2A+100+%3E+5&g0.tab=1",
+      "annotations": {
+        "summary": "192.168.1.24: High Filesystem usage detected",
+        "description": "192.168.1.24: Filesystem usage is above 10% (current value is: 10.078337685426968"
+      },
+      "startsAt": "2019-06-04T06:24:55.407746617Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "status": "firing",
+      "labels": {
+        "instance": "192.168.1.24",
+        "kubernetes_io_arch": "amd64",
+        "alertname": "NodeFilesystemUsage",
+        "beta_kubernetes_io_os": "linux",
+        "kubernetes_io_hostname": "192.168.1.24",
+        "beta_kubernetes_io_arch": "amd64",
+        "kubernetes_io_os": "linux",
+        "kubernetes_io_role": "node",
+        "filesystem": "node",
+        "mountpoint": "/rootfs/run",
+        "job": "kubernetes-nodes",
+        "device": "tmpfs",
+        "fstype": "tmpfs"
+      }
+    }
+  ],
+  "commonLabels": {
+    "kubernetes_io_arch": "amd64",
+    "alertname": "NodeFilesystemUsage",
+    "beta_kubernetes_io_os": "linux",
+    "beta_kubernetes_io_arch": "amd64",
+    "kubernetes_io_os": "linux",
+    "job": "kubernetes-nodes",
+    "device": "tmpfs",
+    "kubernetes_io_role": "node",
+    "filesystem": "node",
+    "fstype": "tmpfs",
+    "mountpoint": "/rootfs/run"
+  },
+  "externalURL": "http://prometheus-7dcf6644c8-ffnqf:9093",
+  "groupLabels": {
+    "alertname": "NodeFilesystemUsage"
+  },
+  "receiver": "webhook",
+  "version": "4",
+  "commonAnnotations": {},
+  "groupKey": "{}/{filesystem=\"node\"}:{alertname=\"NodeFilesystemUsage\"}",
+  "status": "firing"
+}

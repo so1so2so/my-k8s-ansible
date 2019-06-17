@@ -1,0 +1,78 @@
+- hosts: lb
+  roles:
+  - lb
+
+# 在ansible控制节点生成证书,创建目录等基本内容
+- hosts:
+  - deploy
+  roles:
+  - deploy
+
+# 所有节点初始化,
+- hosts:
+  - kube-master
+  - kube-node
+  - deploy
+  - etcd
+  - lb
+  - flanneld
+  roles:
+  - prepare
+
+
+# to install etcd cluster
+- hosts:
+  - etcd
+  roles:
+  - etcd
+
+
+# to install docker in docker node
+- hosts:
+  - kube-node
+  - kube-master
+  roles:
+  - docker
+
+# to install flanneld in all node
+- hosts:
+  - kube-master
+  - kube-node
+  roles:
+  - flanneld
+
+# to change docker-network-to flanneld in all node
+- hosts:
+  - kube-node
+  - kube-master
+  roles:
+  - change-docker-ntework-flannled
+
+
+# to set up 'kube-master' nodes
+- hosts:
+  - kube-master
+  roles:
+  - kube-master
+
+# to set up 'kube-node' nodes
+- hosts:
+  - kube-node
+  - kube-master
+  roles:
+  - kube-node
+
+- hosts:
+  - kube-master
+  tasks:
+  - name: Making master nodes SchedulingDisabled
+    shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
+    delegate_to: "{{ groups.deploy[0] }}"
+    ignore_errors: true
+
+  - name: Setting master role name
+    shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
+    ignore_errors: true
+    delegate_to: "{{ groups.deploy[0] }}"
+
+

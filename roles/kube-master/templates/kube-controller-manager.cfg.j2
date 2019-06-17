@@ -1,4 +1,4 @@
-KUBE_CONTROLLER_MANAGER_OPTS="--address=127.0.0.1 \
+KUBE_CONTROLLER_MANAGER_OPTS="--address=0.0.0.0 \
   --master=http://127.0.0.1:8080 \
   --allocate-node-cidrs=true \
   --service-cluster-ip-range={{ SERVICE_CIDR }} \

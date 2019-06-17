@@ -77,7 +77,7 @@
   until:    result.rc == 0
   retries:  5
   delay: 6
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups.set[0] }}"
   run_once: True
   tags: upgrade_k8s, restart_master
 

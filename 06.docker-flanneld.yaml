@@ -1,5 +1,6 @@
 # to change docker-network-to flanneld in all node
 - hosts:
   - kube-node
+  - kube-master
   roles:
   - change-docker-ntework-flannled
